@@ -1,0 +1,78 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  release:
+    types:
+      - published
+
+defaults:
+  run:
+    # The -l {0} is necessary for conda environments to be activated
+    # But this breaks on MacOS if using actions/setup-python:
+    # https://github.com/actions/setup-python/issues/132
+    shell: bash -l {0}
+
+jobs:
+
+  test:
+    name: ${{ matrix.os }} py${{ matrix.python }}
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      # Otherwise, the workflow would stop if a single job fails. We want to
+      # run all of them to catch failures in different combinations.
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos, windows]
+        python: [3.6, 3.9]
+    env:
+      REQUIREMENTS: requirements.txt
+      PTYHON: ${{ matrix.python }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup caching for conda packages
+        uses: actions/cache@v2
+        with:
+          path: ~/conda_pkgs_dir
+          key: conda-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('requirements*.txt') }}
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v2.0.1
+        with:
+          python-version: ${{ matrix.python }}
+          miniconda-version: "latest"
+          auto-update-conda: true
+          channels: conda-forge
+          show-channel-urls: true
+          activate-environment: testing
+          # Needed for caching
+          use-only-tar-bz2: true
+
+      - name: Install requirements
+        run: |
+          requirements_file=full-conda-requirements.txt
+          if [ ! -z "$REQUIREMENTS" ]; then
+              echo "Capturing dependencies from $REQUIREMENTS"
+              for requirement in $REQUIREMENTS
+              do
+                cat $requirement >> $requirements_file
+              done
+          fi
+          if [ -f $requirements_file ]; then
+              echo "Collected dependencies:"
+              cat $requirements_file
+              echo ""
+              conda install --quiet --file $requirements_file python=$PYTHON
+          else
+              echo "No requirements defined."
+          fi
+
+      - name: List installed packages
+        run: conda list
