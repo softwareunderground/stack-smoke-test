@@ -8,6 +8,10 @@ on:
   release:
     types:
       - published
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    # Run every Monday at 12:00 UTC
+    - cron:  '00 12 * * 1'
 
 defaults:
   run:
