@@ -47,9 +47,9 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2.0.1
         with:
           python-version: ${{ matrix.python }}
-          miniconda-version: "latest"
-          auto-update-conda: true
-          channels: conda-forge
+          mamba-version: "*"
+          channels: conda-forge,defaults
+          channel-priority: true
           show-channel-urls: true
           activate-environment: testing
           # Needed for caching
@@ -69,10 +69,10 @@ jobs:
               echo "Collected dependencies:"
               cat $requirements_file
               echo ""
-              conda install --quiet --file $requirements_file python=$PYTHON
+              mamba install --quiet --file $requirements_file python=$PYTHON
           else
               echo "No requirements defined."
           fi
 
       - name: List installed packages
-        run: conda list
+        run: mamba list
