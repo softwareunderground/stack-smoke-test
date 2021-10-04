@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
-        python: [3.6, 3.9]
+        python: [3.9]
     env:
       REQUIREMENTS: requirements.txt
       PTYHON: ${{ matrix.python }}
@@ -80,3 +80,7 @@ jobs:
 
       - name: List installed packages
         run: mamba list
+
+      - name: Run some tests
+        run: |
+          python -c "import verde; verde.test()"

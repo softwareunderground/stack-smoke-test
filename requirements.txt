@@ -5,3 +5,4 @@ verde
 empymod
 emg3d
 SimPEG
+pytest
