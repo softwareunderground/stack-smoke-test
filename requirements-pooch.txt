@@ -1,0 +1,4 @@
+# Requirements for testing Pooch
+pytest
+pytest-cov
+pytest-localftpserver

@@ -1,3 +1,5 @@
+# Install the Stack and try to run some tests on some of the packages
+#
 name: test
 
 on:
@@ -33,7 +35,7 @@ jobs:
         os: [ubuntu, macos, windows]
         python: [3.9]
     env:
-      REQUIREMENTS: requirements.txt
+      REQUIREMENTS: requirements.txt requirements-pooch.txt
       PTYHON: ${{ matrix.python }}
 
     steps:
@@ -48,7 +50,7 @@ jobs:
           key: conda-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('requirements*.txt') }}
 
       - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@v2.0.1
+        uses: conda-incubator/setup-miniconda@v2.1.1
         with:
           python-version: ${{ matrix.python }}
           mamba-version: "*"
@@ -81,6 +83,6 @@ jobs:
       - name: List installed packages
         run: mamba list
 
-      - name: Run some tests
+      - name: Run the Pooch tests
         run: |
-          python -c "import verde; verde.test()"
+          python -c "import pooch; pooch.test()"
